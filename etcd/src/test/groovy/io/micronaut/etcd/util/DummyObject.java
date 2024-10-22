@@ -1,7 +1,7 @@
 package io.micronaut.etcd.util;
 
 import java.io.Serializable;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  * Class to be used for testing.

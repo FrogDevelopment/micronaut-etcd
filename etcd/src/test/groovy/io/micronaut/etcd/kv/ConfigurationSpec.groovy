@@ -16,7 +16,6 @@ class ConfigurationSpec extends Specification {
                  ,"etcd.endpoints": [endpoints]
                  ,"etcd.user": dummyValue
                  ,"etcd.password": dummyValue
-                 ,"etcd.retryMaxDuration": dummyValue
                  ,"etcd.authority": dummyValue
                 ]
         )
