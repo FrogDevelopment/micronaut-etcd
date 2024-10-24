@@ -1,38 +1,25 @@
+plugins {
+    id 'io.micronaut.build.internal.etcd-module'
+}
+
 dependencies {
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    annotationProcessor "io.micronaut.docs:micronaut-docs-asciidoc-config-props:$micronautDocsVersion"
+    annotationProcessor mn.micronaut.inject.java
 
-    implementation "io.micronaut:micronaut-inject"
-    implementation "io.micronaut:micronaut-inject-java"
-    implementation "io.etcd:jetcd-core:$jetcdVersion"
+    implementation mn.micronaut.inject
+    implementation mn.micronaut.inject.java
+    implementation libs.etcd
 
-    compileOnly "io.micronaut.micrometer:micronaut-micrometer-core"
-    compileOnly "io.micronaut:micronaut-management"
+    compileOnly mnMicrometer.micronaut.micrometer.core
+    compileOnly mn.micronaut.management
 
-    testImplementation("org.spockframework:spock-core:${spockVersion}") {
-        exclude module:'groovy-all'
+    testImplementation(libs.spock.core) {
+        exclude group: "org.codehaus.groovy", module:'groovy-all'
     }
-    testImplementation "io.micronaut.test:micronaut-test-spock:$micronautTestVersion"
-    testImplementation "io.micronaut:micronaut-inject-groovy"
-    testImplementation "io.micronaut:micronaut-inject-java"
-    testImplementation "org.testcontainers:spock:$spockTestConainersVersion"
-    testImplementation "io.micronaut:micronaut-management"
-}
+    testImplementation mnTest.micronaut.test.spock
+    testImplementation mn.micronaut.inject.groovy
+    testImplementation mn.micronaut.inject.java
+    testImplementation libs.testcontainers.spock
+    testImplementation mn.micronaut.management
 
-tasks.withType(Test) {
-    useJUnitPlatform()
-}
-
-
-task fatJar(type: Jar) {
-    manifest.from jar.manifest
-    classifier = 'all'
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    } {
-        exclude "META-INF/*.SF"
-        exclude "META-INF/*.DSA"
-        exclude "META-INF/*.RSA"
-    }
-    with jar
+    testRuntimeOnly(mnLogging.logback.classic)
 }

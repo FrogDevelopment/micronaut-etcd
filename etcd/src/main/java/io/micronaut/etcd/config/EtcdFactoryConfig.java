@@ -16,10 +16,14 @@
 package io.micronaut.etcd.config;
 
 import io.etcd.jetcd.ByteSequence;
+import io.etcd.jetcd.ClientBuilder;
 import io.grpc.ClientInterceptor;
 import io.grpc.Metadata.Key;
+import io.grpc.netty.GrpcSslContexts;
 import io.micronaut.context.annotation.Parameter;
 import io.netty.handler.ssl.SslContext;
+
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -42,13 +46,13 @@ public abstract class EtcdFactoryConfig {
   private ByteSequence namespace = ByteSequence.EMPTY;
   private long retryDelay = 500;
   private long retryMaxDelay = 2500;
-  private Long keepaliveTimeMs = 30000L;
-  private Long keepaliveTimeoutMs = 10000L;
+  private Duration keepaliveTime = Duration.ofSeconds(30);
+  private Duration keepaliveTimeout = Duration.ofSeconds(10);
   private Boolean keepaliveWithoutCalls = true;
   private ChronoUnit retryChronoUnit = ChronoUnit.MILLIS;
-  private String retryMaxDuration = "";
-  private Integer connectTimeoutMs;
-  private boolean discovery;
+  private Duration retryMaxDuration;
+  private Duration connectTimeout;
+  private boolean waitForReady = true;
 
   /**
    * Constructor.
@@ -250,33 +254,33 @@ public abstract class EtcdFactoryConfig {
   /**
    * @return The interval for gRPC keepalives
    */
-  public Long getKeepaliveTimeMs() {
-    return keepaliveTimeMs;
+  public Duration getKeepaliveTime() {
+    return keepaliveTime;
   }
 
   /**
    * The interval for gRPC keepalives.
    * The current minimum allowed by gRPC is 10s
    *
-   * @param keepaliveTimeMs time in ms between keepalives
+   * @param keepaliveTime duration between keepalives
    */
-  public void setKeepaliveTimeMs(Long keepaliveTimeMs) {
-    this.keepaliveTimeMs = keepaliveTimeMs;
+  public void setKeepaliveTime(Duration keepaliveTime) {
+    this.keepaliveTime = keepaliveTime;
   }
 
   /**
    * @return The timeout for gRPC keepalives
    */
-  public Long getKeepaliveTimeoutMs() {
-    return keepaliveTimeoutMs;
+  public Duration getKeepaliveTimeout() {
+    return keepaliveTimeout;
   }
 
   /**
    * The timeout for gRPC keepalives.
-   * @param keepaliveTimeoutMs The gRPC keep alive timeout in milliseconds.
+   * @param keepaliveTimeout The gRPC keep alive timeout duration.
    */
-  public void setKeepaliveTimeoutMs(Long keepaliveTimeoutMs) {
-    this.keepaliveTimeoutMs = keepaliveTimeoutMs;
+  public void setKeepaliveTimeout(Duration keepaliveTimeout) {
+    this.keepaliveTimeout = keepaliveTimeout;
   }
 
   /**
@@ -311,22 +315,22 @@ public abstract class EtcdFactoryConfig {
   /**
    * @return the retries max duration.
    */
-  public String getRetryMaxDuration() {
+  public Duration getRetryMaxDuration() {
     return retryMaxDuration;
   }
 
   /**
    * @param retryMaxDuration the retries max duration.
    */
-  public void setRetryMaxDuration(String retryMaxDuration) {
+  public void setRetryMaxDuration(Duration retryMaxDuration) {
     this.retryMaxDuration = retryMaxDuration;
   }
 
   /**
-   * @return the connect timeout in milliseconds.
+   * @return the connect timeout duration.
    */
-  public Integer getConnectTimeoutMs() {
-    return connectTimeoutMs;
+  public Duration getConnectTimeout() {
+    return connectTimeout;
   }
 
   /**
@@ -334,23 +338,27 @@ public abstract class EtcdFactoryConfig {
    * Clients connecting to fault tolerant etcd clusters (eg, clusters with >= 3 etcd server
    * peers/endpoints) should consider a value that will allow switching timely from a
    * crashed/partitioned peer to a consensus peer.
-   * @param connectTimeoutMs config the connect timeout in milliseconds.
+   * @param connectTimeout config the connect timeout duration.
    */
-  public void setConnectTimeoutMs(Integer connectTimeoutMs) {
-    this.connectTimeoutMs = connectTimeoutMs;
+  public void setConnectTimeout(Duration connectTimeout) {
+    this.connectTimeout = connectTimeout;
   }
 
   /**
-   * @return if the endpoint represent a discovery address using dns+srv.
+   * Enable gRPC's wait for ready semantics.
+   *
+   * @return if this client uses gRPC's wait for ready semantics.
    */
-  public boolean isDiscovery() {
-    return discovery;
+  public boolean waitForReady() {
+    return waitForReady;
   }
 
   /**
-   * @param discovery if the endpoint represent a discovery address using dns+srv.
+   * Configure the gRPC's wait for ready semantics.
+   *
+   * @param  waitForReady if this client should use gRPC's wait for ready semantics. Enabled by default.
    */
-  public void setDiscovery(boolean discovery) {
-    this.discovery = discovery;
+  public void waitForReady(boolean waitForReady) {
+    this.waitForReady = waitForReady;
   }
 }
