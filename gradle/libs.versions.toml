@@ -1,0 +1,25 @@
+[versions]
+micronaut = "4.7.0"
+micronaut-docs = "2.0.0"
+micronaut-test = "4.2.1"
+micronaut-micrometer = "5.8.0"
+micronaut-logging = "1.4.0"
+groovy = "4.0.17"
+spock = "2.3-groovy-4.0"
+spock-testcontainers = "1.20.2"
+etcd = "0.8.3"
+
+[libraries]
+# Core
+micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'micronaut' }
+micronaut-logging = { module = "io.micronaut.logging:micronaut-logging-bom", version.ref = "micronaut-logging" }
+micronaut-micrometer = { module = "io.micronaut.micrometer:micronaut-micrometer-bom", version.ref = "micronaut-micrometer" }
+micronaut-test = { module = "io.micronaut.test:micronaut-test-bom", version.ref = "micronaut-test" }
+
+etcd = { module = "io.etcd:jetcd-core", version.ref = "etcd" }
+spock-core = { module = "org.spockframework:spock-core", version.ref = "spock" }
+testcontainers-spock = { module = "org.testcontainers:spock", version.ref = "spock-testcontainers" }
+
+[bundles]
+
+[plugins]

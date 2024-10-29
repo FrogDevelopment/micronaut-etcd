@@ -1,3 +1,23 @@
-rootProject.name = 'etcd'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'io.micronaut.build.shared.settings' version '7.2.1'
+}
+
+rootProject.name = 'etcd-parent'
 
 include 'etcd'
+include 'etcd-bom'
+
+enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
+
+micronautBuild {
+    useStandardizedProjectNames = true
+    importMicronautCatalog()
+    importMicronautCatalog("micronaut-micrometer")
+}

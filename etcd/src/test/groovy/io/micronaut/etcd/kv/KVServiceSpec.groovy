@@ -1,28 +1,30 @@
 package io.micronaut.etcd.kv
 
-import io.etcd.jetcd.ByteSequence
 import io.micronaut.etcd.config.EtcdFactoryConfig
 import io.micronaut.etcd.config.SingleEtcdFactoryConfig
 import io.micronaut.etcd.util.DummyObject
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
-import org.testcontainers.shaded.org.apache.commons.lang.SerializationUtils
+import org.testcontainers.shaded.org.apache.commons.lang3.SerializationUtils
+import org.testcontainers.spock.Testcontainers
+import org.testcontainers.utility.DockerImageName
 import spock.lang.Shared
 import spock.lang.Specification
 
 import static com.google.common.base.Charsets.UTF_8
 
-
+@Testcontainers
 class KVServiceSpec extends Specification {
+
+    private static final DockerImageName ETCD_IMAGE = DockerImageName.parse("quay.io/coreos/etcd:v3.4.34")
 
     int originalPort = 2379
 
     @Shared
-    GenericContainer etcdContainer =
-            new GenericContainer("quay.io/coreos/etcd:v3.4.9")
-                    .withExposedPorts(2379, 4001)
-                    .withCommand("/usr/local/bin/etcd -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379")
-                    .waitingFor(new LogMessageWaitStrategy().withRegEx("(?s).*ready to serve client requests.*"))
+    GenericContainer etcdContainer = new GenericContainer(ETCD_IMAGE)
+            .withExposedPorts(2379, 4001)
+            .withCommand("/usr/local/bin/etcd -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379")
+            .waitingFor(new LogMessageWaitStrategy().withRegEx("(?s).*ready to serve client requests.*"))
 
     def "test Get service works with empty storage"() {
         given:
@@ -39,17 +41,17 @@ class KVServiceSpec extends Specification {
         byte[] ret = kvService.get(key)
 
         then:
-        expected ==  ret
+        expected == ret
 
         cleanup:
         etcdContainer.stop()
     }
 
-    def "test Put single integer" () {
+    def "test Put single integer"() {
         given:
         etcdContainer.start()
         String key = "foo"
-        Integer value = new Integer(69)
+        Integer value = Integer.valueOf(69)
 
         and:
         EtcdFactoryConfig config = new SingleEtcdFactoryConfig()
@@ -62,14 +64,14 @@ class KVServiceSpec extends Specification {
         byte[] ret = kvService.get(key)
 
         then:
-        expectedFromPut ==  retFromPut
+        expectedFromPut == retFromPut
         BigInteger.valueOf(value).toByteArray() == ret
 
         cleanup:
         etcdContainer.stop()
     }
 
-    def "test Put byte array" () {
+    def "test Put byte array"() {
         given:
         etcdContainer.start()
         String key = "foo"
@@ -91,7 +93,7 @@ class KVServiceSpec extends Specification {
         etcdContainer.stop()
     }
 
-    def "test Put single string" () {
+    def "test Put single string"() {
         given:
         etcdContainer.start()
         String key = "foo"
@@ -115,7 +117,7 @@ class KVServiceSpec extends Specification {
         etcdContainer.stop()
     }
 
-    def "test Put several String values" () {
+    def "test Put several String values"() {
         given:
         etcdContainer.start()
         String key = "foo"
@@ -144,7 +146,7 @@ class KVServiceSpec extends Specification {
         etcdContainer.stop()
     }
 
-    def "test Put single Object" () {
+    def "test Put single Object"() {
         given:
         etcdContainer.start()
         String key = "foo"
@@ -169,7 +171,7 @@ class KVServiceSpec extends Specification {
         etcdContainer.stop()
     }
 
-    def "test delete element from etcd" () {
+    def "test delete element from etcd"() {
         given:
         etcdContainer.start()
         String key = "foo"
